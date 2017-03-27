@@ -19,7 +19,7 @@
     
   <my-button :title="buttonTitle"></my-button>
   <div :style="styleObject">{{reversedMessage}}</div>
-  <div>{{reverseMessage()}}</div>
+  <div>{{reverseMessages()}}</div>
     <h1 v-if="ok">Yes</h1>
     <h1 v-else>No</h1>
     <ul>
@@ -29,15 +29,58 @@
         </template>
 </ul>
 <TodoList></TodoList>
+<li v-for="n in evenNumbers" :key="n">{{ n }}</li>
+<button v-on:click="warn('Form cannot be submitted yet.', $event)">Submit</button>
+<br/>
+<input type="checkbox" id="checkbox" v-model="checked">
+<label for="checkbox">{{ checked }}</label>
+<br>
+<input type="checkbox" v-model="toggle" v-bind:true-value="a" v-bind:false-value="b">
+<label for="checkbox">{{ toggle }}</label>
+<br/>
+<input type="radio" id="one" v-model="pick" v-bind:value="a">
+<label for="one">{{a}}</label>
+<br>
+<input type="radio" id="two" v-model="pick" v-bind:value="b">
+<label for="two">{{b}}</label>
+<br/>
+<span>Picked: {{ pick }}</span>
+<br>
+<select v-model="selected">
+  <option v-for="option in options" v-bind:value="option.value">
+    {{ option.text }}
+  </option>
+</select>
+<span>Selected: {{ selected }}</span>
+<br>
+<span>Count:{{count}}</span>
 </div>
 </template>
 <script>
     import MyButton from 'components/Button'
     import TodoList from 'components/TodoList'
+    import Vuex from 'vuex'
     export default {
         name: 'hello',
         data() {
             return {
+                selected: 'A',
+                options: [{
+                    text: 'One',
+                    value: 'A'
+                }, {
+                    text: 'Two',
+                    value: 'B'
+                }, {
+                    text: 'Three',
+                    value: 'C'
+                }],
+                toggle: "Two",
+                pick: "",
+                a: "One",
+                b: "Two",
+                checked: false,
+                numbers: [1, 2, 3, 4, 5],
                 inputValue: '',
                 tips: '',
                 ok: false,
@@ -66,14 +109,22 @@
         },
         computed: {
             // a computed getter
-            reversedMessage: function() {
+            reversedMessage() {
                 // `this` points to the vm instance
                 return this.msg + Date.now()
+            },
+            evenNumbers() {
+                return this.numbers.filter(function(number) {
+                    return number % 2 === 0
+                })
+            },
+            count() {
+                return this.$store
             }
         },
         watch: {
             // 如果 inputValue 发生改变，这个函数就会运行
-            inputValue: function() {
+            inputValue() {
                 if (this.inputValue != '123') {
                     this.hasError = true
                     this.tips = 'please input 123'
@@ -84,7 +135,7 @@
             }
         },
         filters: {
-            filterA: function(value) {
+            filterA(value) {
                 if (!value) return ''
                 value = value.toString()
                 var reg = /\b(\w)|\s(\w)/g;
@@ -92,20 +143,29 @@
                     return m.toUpperCase()
                 })
             },
-            filterB: function(value) {
+            filterB(value) {
                 if (!value) return ''
                 value = value.toString()
                 return value.replace(/\s/g, "@")
             }
         },
         methods: {
-            reverseMessage: function() {
+            reverseMessage() {
+                this.inputValue = this.inputValue.split(' ').reverse().join(' ')
+            },
+            reverseMessages() {
                 return this.msg + Date.now()
+            },
+            warn(message, event) {
+                // 现在我们可以访问原生事件对象
+                if (event) event.preventDefault()
+                alert(message)
             }
         },
         components: {
             MyButton,
-            TodoList
+            TodoList,
+            Vuex
         }
     }
 </script>
@@ -123,7 +183,7 @@
     }
     
     a {
-        color: #42b983;
+        color: #ff8c00;
     }
     
     .text-danger {
